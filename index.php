@@ -9,7 +9,7 @@ include  '/includes/header.php';
 <section class="py-4">
   <div class="row align-items-center">
     <div class="col-md-7">
-      <h2>Welcome to the Inventory Management System</h2>
+      <h2>Welcome to Kyles Final PHP Project Inventory Management System</h2>
       <p>View products, create an account, or sign in to manage inventory.</p>
       <a href="/products.php" class="btn btn-primary">Browse Products</a>
     </div>
