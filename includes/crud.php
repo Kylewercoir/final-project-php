@@ -1,72 +1,69 @@
 <?php
 class Crud {
-  private $conn;
+    private $conn;
 
-  public function __construct($db) {
-    $this->conn = $db;
-  }
-
-  // Create admin (register)
-  public function createAdmin($name, $email, $password, $confirm) {
-    if ($password !== $confirm) {
-      return "Passwords do not match.";
+    public function __construct($db) {
+        $this->conn = $db;
     }
 
-    $check = $this->conn->prepare("SELECT * FROM admins WHERE email = ?");
-    $check->execute([$email]);
-    if ($check->rowCount() > 0) {
-      return "Email already exists.";
+    // CREATE ADMIN
+    public function createAdmin($name, $email, $password, $confirm) {
+        if ($password !== $confirm) {
+            return "Passwords do not match!";
+        }
+
+        // Check duplicate email
+        $check = $this->conn->prepare("SELECT * FROM admins WHERE email = ?");
+        $check->execute([$email]);
+        if ($check->rowCount() > 0) {
+            return "Email already registered!";
+        }
+
+        // Hash password
+        $hash = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $this->conn->prepare("INSERT INTO admins (name, email, password) VALUES (?, ?, ?)");
+        $stmt->execute([$name, $email, $hash]);
+        return "Admin registered successfully!";
     }
 
-    $hash = password_hash($password, PASSWORD_DEFAULT);
-    $stmt = $this->conn->prepare("INSERT INTO admins (name, email, password) VALUES (?, ?, ?)");
-    $stmt->execute([$name, $email, $hash]);
-    return "Admin account created successfully!";
-  }
-
-  // Login
-  public function login($email, $password) {
-    $stmt = $this->conn->prepare("SELECT * FROM admins WHERE email = ?");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
-    if ($user && password_verify($password, $user['password'])) {
-      return $user;
+    // CREATE PRODUCT
+    public function createProduct($name, $desc, $price, $inv, $imagePath) {
+        $stmt = $this->conn->prepare("INSERT INTO products (name, description, price, inventory, image) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $desc, $price, $inv, $imagePath]);
+        return "Product added!";
     }
-    return false;
-  }
 
-  // Create product
-  public function createProduct($name, $desc, $qty, $price, $image) {
-    $stmt = $this->conn->prepare("INSERT INTO products (name, description, quantity, price, image) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$name, $desc, $qty, $price, $image]);
-    return "Product added successfully!";
-  }
+    // READ ALL PRODUCTS
+    public function getAllProducts() {
+        $stmt = $this->conn->query("SELECT * FROM products ORDER BY created_at DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-  // Read all products
-  public function getProducts() {
-    $stmt = $this->conn->query("SELECT * FROM products ORDER BY created_at DESC");
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
-  }
+    // READ SINGLE PRODUCT
+    public function getProduct($id) {
+        $stmt = $this->conn->prepare("SELECT * FROM products WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
 
-  // Get single product
-  public function getProductById($id): mixed {
-    $stmt = $this->conn->prepare("SELECT * FROM products WHERE id = ?");
-    $stmt->execute([$id]);
-    return $stmt->fetch(PDO::FETCH_ASSOC);
-  }
+    // UPDATE PRODUCT
+    public function updateProduct($id, $name, $desc, $price, $inv, $image = null) {
+        if ($image) {
+            $sql = "UPDATE products SET name=?, description=?, price=?, inventory=?, image=? WHERE id=?";
+            $params = [$name, $desc, $price, $inv, $image, $id];
+        } else {
+            $sql = "UPDATE products SET name=?, description=?, price=?, inventory=? WHERE id=?";
+            $params = [$name, $desc, $price, $inv, $id];
+        }
+        $stmt = $this->conn->prepare($sql);
+        $stmt->execute($params);
+        return "Product updated!";
+    }
 
-  // Update product
-  public function updateProduct($id, $name, $desc, $qty, $price, $image): string {
-    $stmt = $this->conn->prepare("UPDATE products SET name=?, description=?, quantity=?, price=?, image=? WHERE id=?");
-    $stmt->execute([$name, $desc, $qty, $price, $image, $id]);
-    return "Product updated!";
-  }
-
-  // Delete product
-  public function deleteProduct($id): string {
-    $stmt = $this->conn->prepare("DELETE FROM products WHERE id=?");
-    $stmt->execute([$id]);
-    return "Product deleted!";
-  }
+    // DELETE PRODUCT
+    public function deleteProduct($id) {
+        $stmt = $this->conn->prepare("DELETE FROM products WHERE id=?");
+        $stmt->execute([$id]);
+        return "Product deleted!";
+    }
 }
-?>
