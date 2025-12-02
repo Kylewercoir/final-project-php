@@ -1,28 +1,37 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
+session_start();
+require 'db.php';
 
-include "includes/header.php";
-include_once "includes/inventory.php";
-
-$inventory = new Inventory(require "includes/config.php");
-$products = $inventory->getAllProducts();
+$pdo = Database::getInstance()->getConnection();
+include 'includes/header.php';
 ?>
 
-<link rel="stylesheet" href="css/styles.css">
+<h1>All Products</h1>
+
+<?php
+$stmt = $pdo->query("SELECT * FROM products ORDER BY id DESC LIMIT 4");
+$counter = 1;
+
+while($product = $stmt->fetch()):
+    // Dynamic image
+    $imagePath = 'uploads/default.png';
+    if(!empty($product['image']) && file_exists('uploads/'.$product['image'])){
+        $imagePath = 'uploads/'.$product['image'];
+    }
 
 
-<div class="text">
-    <h1>All Products</h1>
-    <div class="products">
-        <?php foreach($products as $p): ?>
-            <div class="product">
-                <h3><?php echo htmlspecialchars($p['name']); ?></h3>
-                <p>Quantity: <?php echo $p['quantity']; ?></p>
-                <a href="product.php?id=<?php echo $p['id']; ?>" class="btn btn-primary">View</a>
-            </div>
-        <?php endforeach; ?>
+    $counter++;
+?>
+    <div>
+        <h2><?= htmlspecialchars($product['name']) ?></h2>
+        <img src="<?= htmlspecialchars($imagePath) ?>" alt="<?= htmlspecialchars($product['name']) ?>" style="width:150px;">
+        <p>Quantity: <?= $product['quantity'] ?></p>
+        <p>Price: $<?= $product['price'] ?></p>
     </div>
-</div>
+<?php endwhile; ?>
 
-<?php include "includes/footer.php"; ?>
+<?php include 'includes/footer.php'; ?>

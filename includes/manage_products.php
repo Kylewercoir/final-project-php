@@ -1,12 +1,12 @@
 <?php
 include 'db.php';
-include 'auth-check.php';
+include 'auth.php';
 check_admin();
 ?>
 
 <?php include 'header.php'; ?>
 
-<h1>Add Products</h1>
+<h1>Manage Products</h1>
 
 <table>
     <tr>

@@ -1,12 +1,12 @@
 <?php
 include 'db.php';
-include 'auth-check.php';
-check_admin(); // Only admins can access
+include 'auth.php';
+check_admin();
 ?>
 
 <?php include 'header.php'; ?>
 
-<h1>Users Management</h1>
+<h1>Manage Users</h1>
 
 <table>
     <tr>
@@ -16,11 +16,10 @@ check_admin(); // Only admins can access
         <th>Role</th>
         <th>Actions</th>
     </tr>
-
-<?php
-$stmt = $pdo->query("SELECT * FROM users ORDER BY id ASC");
-while($user = $stmt->fetch()):
-?>
+    <?php
+    $stmt = $pdo->query("SELECT * FROM users");
+    while($user = $stmt->fetch()):
+    ?>
     <tr>
         <td><?= $user['id'] ?></td>
         <td><?= htmlspecialchars($user['username']) ?></td>
@@ -28,11 +27,10 @@ while($user = $stmt->fetch()):
         <td><?= $user['role'] ?></td>
         <td>
             <a href="edit_user.php?id=<?= $user['id'] ?>">Edit</a> |
-            <a href="delete_user.php?id=<?= $user['id'] ?>" onclick="return confirm('Are you sure you want to delete this user?')">Delete</a>
+            <a href="delete_user.php?id=<?= $user['id'] ?>" onclick="return confirm('Are you sure?')">Delete</a>
         </td>
     </tr>
-<?php endwhile; ?>
-
+    <?php endwhile; ?>
 </table>
 
 <?php include 'footer.php'; ?>

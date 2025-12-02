@@ -1,22 +1,21 @@
-<?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-include "includes/header.php";
-include_once "includes/inventory.php";
+<?php include 'includes/header.php'; ?>
+<?php include 'includes/db.php'; ?>
 
-$inventory = new Inventory(require "includes/config.php");
-$product = $inventory->getProduct($_GET['id']);
+<?php
+if(!isset($_GET['id'])) { echo "No product specified"; exit; }
+$id = intval($_GET['id']);
+$stmt = $pdo->prepare("SELECT * FROM products WHERE id=?");
+$stmt->execute([$id]);
+$product = $stmt->fetch();
+if(!$product){ echo "Product not found"; exit; }
 ?>
 
-<div class="text">
-    <h1><?php echo htmlspecialchars($product['name']); ?></h1>
-    <p><?php echo htmlspecialchars($product['description']); ?></p>
-    <p>Price: $<?php echo $product['price']; ?></p>
-    <p>Quantity: <?php echo $product['quantity']; ?></p>
+<section>
+    <h1><?= htmlspecialchars($product['name']) ?></h1>
+    <img src="uploads/<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>">
+    <p><?= htmlspecialchars($product['description']) ?></p>
+    <p>Quantity: <?= $product['quantity'] ?></p>
+    <p>Price: $<?= $product['price'] ?></p>
+</section>
 
-    <?php if (isset($_SESSION['user_id'])): ?>
-        <a href="update_product.php?id=<?php echo $product['id']; ?>" class="btn">Update</a>
-        <a href="delete_product.php?id=<?php echo $product['id']; ?>" class="btn">Delete</a>
-    <?php endif; ?>
-</div>
-
-<?php include "includes/footer.php"; ?>
+<?php include 'includes/footer.php'; ?>
