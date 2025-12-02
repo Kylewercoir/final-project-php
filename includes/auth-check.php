@@ -1,36 +1,48 @@
 <?php
 session_start();
-
-/**
- * Check if a user is logged in
- */
-function is_logged_in() {
-    return isset($_SESSION['user_id']);
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header("Location: login.php");
+    exit;
 }
 
-/**
- * Check if a user is an admin
- */
-function is_admin() {
-    return isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
-}
+require_once __DIR__ . '/../db.php';
+$pdo = Database::getInstance()->getConnection();
 
-/**
- * Redirect non-logged-in users to login page
- */
-function check_login() {
-    if (!is_logged_in()) {
-        header("Location: ../login.php");
-        exit;
-    }
-}
+include __DIR__ . '/header.php';
 
-/**
- * Redirect non-admin users to home page
- */
-function check_admin() {
-    if (!is_logged_in() || !is_admin()) {
-        header("Location: ../index.php");
-        exit;
-    }
-}
+// quick stats
+$stmt = $pdo->query(query: "SELECT COUNT(*) AS cnt FROM products");
+$productsCount = $stmt->fetchColumn();
+
+$stmt = $pdo->query(query: "SELECT COUNT(*) AS cnt FROM users");
+$usersCount = $stmt->fetchColumn();
+
+$stmt = $pdo->query(query: "SELECT SUM(quantity) AS total_stock FROM products");
+$totalStock = $stmt->fetchColumn();
+?>
+<main class="container">
+    <h1>Admin Dashboard</h1>
+
+    <div class="stats-grid">
+        <div class="stat">
+            <h2><?= intval(value: $productsCount) ?></h2>
+            <p>Products</p>
+        </div>
+        <div class="stat">
+            <h2><?= intval(value: $usersCount) ?></h2>
+            <p>Users</p>
+        </div>
+        <div class="stat">
+            <h2><?= intval(value: $totalStock) ?></h2>
+            <p>Total Stock</p>
+        </div>
+    </div>
+
+    <div class="admin-actions">
+        <a class="btn" href="/manage_products.php">Manage Products</a>
+        <a class="btn" href="/add_product.php">Add Product</a>
+        <a class="btn" href="/users.php">Manage Users</a>
+    </div>
+</main>
+
+<?php include __DIR__ . '/footer.php'; ?>

@@ -1,58 +1,50 @@
 <?php
 session_start();
-require 'db.php';
-
-// Redirect if user is not logged in
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
-    exit();
+    exit;
 }
 
-$message = '';
+require 'db.php';
+$pdo = Database::getInstance()->getConnection();
+
+$message = "";
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name']);
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
-    $role = $_POST['role'] ?? 'user';
+    $username = trim($_POST['username']);
+    $email    = trim($_POST['email']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
+    $role     = $_POST['role'];
 
-    // Basic validation
-    if (empty($name) || empty($email) || empty($password)) {
-        $message = "Please fill in all required fields.";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $message = "Invalid email format.";
-    } else {
-        // Hash password
-        $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+    $stmt = $pdo->prepare("INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)");
+    $stmt->execute([$username, $email, $password, $role]);
 
-        // Insert into database
-        $stmt = $pdo->prepare("INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)");
-        try {
-            $stmt->execute([$name, $email, $hashed_password, $role]);
-            $message = "User created successfully.";
-        } catch (PDOException $e) {
-            if ($e->getCode() == 23000) { // duplicate email
-                $message = "Email already exists.";
-            } else {
-                $message = "Database error: " . $e->getMessage();
-            }
-        }
-    }
+    header("Location: users.php");
+    exit;
 }
+
+include 'includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Add User</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <?php include 'header.php'; ?>
+<h1>Add User</h1>
 
-    <main>
-        <h1>Add New User</h1>
+<form method="POST">
+    <label>Username</label>
+    <input type="text" name="username" required>
 
-        <?php if ($message): ?>
-            <p class="message"><?= htmlspecialchars($message)
+    <label>Email</label>
+    <input type="email" name="email" required>
+
+    <label>Password</label>
+    <input type="password" name="password" required>
+
+    <label>Role</label>
+    <select name="role">
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+    </select>
+
+    <button type="submit">Create User</button>
+</form>
+
+<?php include 'includes/footer.php'; ?>
