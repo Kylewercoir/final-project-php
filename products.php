@@ -1,9 +1,5 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
 
-session_start();
 require 'db.php';
 
 $pdo = Database::getInstance()->getConnection();
@@ -18,7 +14,7 @@ $counter = 1;
 
 while($product = $stmt->fetch()):
     // Dynamic image
-    $imagePath = 'uploads/default.png';
+    $imagePath = 'uploads/kylewercoir-hat.png';
     if(!empty($product['image']) && file_exists('uploads/'.$product['image'])){
         $imagePath = 'uploads/'.$product['image'];
     }

@@ -12,20 +12,33 @@ session_start();
 <body>
 <header>
     <nav>
+        <!-- Logo -->
         <a href="index.php"><img src="uploads/logo.png" alt="KyleWerCoirGaming" class="logo"></a>
+
+        <!-- Navigation Menu -->
         <ul>
             <li><a href="index.php">Home</a></li>
             <li><a href="products.php">Products</a></li>
+
             <?php if(!isset($_SESSION['user_id'])): ?>
+                <!-- Links for guests -->
                 <li><a href="register.php">Register</a></li>
                 <li><a href="login.php">Login</a></li>
             <?php else: ?>
-                <?php if($_SESSION['role']=='admin'): ?>
+                <!-- Links for logged-in users -->
+                <?php if($_SESSION['role'] === 'admin'): ?>
+                    <li><a href="manage_products.php">Manage Products</a></li>
+                    <li><a href="add_product.php">Add Product</a></li>
+                    <li><a href="users.php">Manage Users</a></li>
+                    <li><a href="add_user.php">Add User</a></li>
                     <li><a href="includes/admin_dashboard.php">Dashboard</a></li>
                 <?php endif; ?>
-                <li><a href="logout.php">Logout</a></li>
+                <!-- Display username and logout link -->
+                <li><a href="logout.php">Logout (<?= htmlspecialchars($_SESSION['user_name']) ?>)</a></li>
             <?php endif; ?>
         </ul>
     </nav>
 </header>
+
 <main>
+
