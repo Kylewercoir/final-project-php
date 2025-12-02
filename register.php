@@ -1,6 +1,7 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) session_start();
 include 'includes/db.php';
-include 'includes/crud.php';
+include 'includes/inventory.php';
 include 'includes/header.php';
 
 $db = (new Database())->connect();

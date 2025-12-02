@@ -1,6 +1,9 @@
 <?php
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+
 include "includes/header.php";
-include_once "includes/Inventory.php";
+include_once "includes/inventory.php";
 
 $inventory = new Inventory(require "includes/config.php");
 $products = $inventory->getAllProducts();

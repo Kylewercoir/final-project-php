@@ -1,7 +1,12 @@
+
 <?php
+ini_set('display_errors,1');
+error_reporting(E_ALL);
+if (session_status() === PHP_SESSION_NONE) session_start();
+include '/includes/header.php';
 // Include header and necessary files
 include "includes/header.php";
-include_once "includes/Inventory.php";
+include_once "includes/inventory.php";
 
 // Load config and initialize inventory
 $config = require "includes/config.php";
