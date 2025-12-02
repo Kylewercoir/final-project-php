@@ -1,33 +1,32 @@
 <?php
-// Start session for login tracking
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+session_start();
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kyle's Inventory Management</title>
-    <!-- CSS is linked in the page itself like your pizza project -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KyleWerCoirGaming Inventory</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1>Kyle Inventory Management</h1>
-        <!-- Optional: simple nav -->
-        <nav>
-            <a href="index.php">Home</a> |
-            <a href="products.php">Products</a>
-            <?php
-            if (!isset($_SESSION['user_id'])) {
-                echo ' | <a href="register.php">Register</a>';
-                echo ' | <a href="login.php">Login</a>';
-            } else {
-                echo ' | Welcome, ' . htmlspecialchars($_SESSION['username']);
-                echo ' | <a href="logout.php">Logout</a>';
-            }
-            ?>
-        </nav>
-        <hr>
-    </header>
+<header>
+    <nav>
+        <a href="index.php"><img src="uploads/logo.png" alt="KyleWerCoirGaming" class="logo"></a>
+        <ul>
+            <li><a href="index.php">Home</a></li>
+            <li><a href="products.php">Products</a></li>
+            <?php if(!isset($_SESSION['user_id'])): ?>
+                <li><a href="register.php">Register</a></li>
+                <li><a href="login.php">Login</a></li>
+            <?php else: ?>
+                <?php if($_SESSION['role']=='admin'): ?>
+                    <li><a href="includes/admin_dashboard.php">Dashboard</a></li>
+                <?php endif; ?>
+                <li><a href="logout.php">Logout</a></li>
+            <?php endif; ?>
+        </ul>
+    </nav>
+</header>
+<main>

@@ -1,11 +1,18 @@
 <?php
-// Preventing unauthorized access to admin pages
-if (!isset($_SESSION)) {
-    session_start();
+session_start();
+
+function check_login() {
+    if(!isset($_SESSION['user_id'])) {
+        header("Location: /login.php");
+        exit;
+    }
 }
 
-if (!isset($_SESSION['user'])) {
-    header("Location: /login.php");
-    exit;
+function check_admin() {
+    check_login();
+    if($_SESSION['role'] != 'admin') {
+        header("Location: /pages/index.php");
+        exit;
+    }
 }
 ?>

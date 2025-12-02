@@ -1,32 +1,40 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-include "includes/header.php";
-include_once "includes/User.php";
+include 'includes/db.php';
+session_start();
+$message = '';
 
-$user = new User(require "includes/config.php");
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    $username = $_POST['username'];
+    $password = $_POST['password'];
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $loggedInUser = $user->login($_POST['email'], $_POST['password']);
-    if ($loggedInUser) {
-        session_start();
-        $_SESSION['user_id'] = $loggedInUser['id'];
-        $_SESSION['username'] = $loggedInUser['username'];
-        header("Location: index.php");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ?");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch();
+
+    if($user && password_verify($password, $user['password'])){
+        $_SESSION['user_id'] = $user['id'];
+        $_SESSION['role'] = $user['role'];
+        if($user['role']=='admin'){
+            header("Location: /includes/admin_dashboard.php");
+        } else {
+            header("Location: /pages/index.php");
+        }
         exit;
     } else {
-        $error = "Invalid email or password";
+        $message = "Invalid login!";
     }
 }
 ?>
-
-<div class="text">
+<?php include 'includes/header.php'; ?>
+<section>
     <h1>Login</h1>
-    <?php if (!empty($error)) echo "<p style='color:red;'>$error</p>"; ?>
-    <form method="post">
-        <input type="email" name="email" placeholder="Email" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <button type="submit" class="btn">Login</button>
+    <?php if($message) echo "<p>$message</p>"; ?>
+    <form action="" method="POST">
+        <label>Username</label>
+        <input type="text" name="username" required>
+        <label>Password</label>
+        <input type="password" name="password" required>
+        <button type="submit">Login</button>
     </form>
-</div>
-
-<?php include "includes/footer.php"; ?>
+</section>
+<?php include 'includes/footer.php'; ?>

@@ -1,29 +1,38 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) session_start();
-include 'includes/db.php';
-include 'includes/inventory.php';
-include 'includes/header.php';
+include '../includes/db.php';
+$message = '';
 
-$db = (new Database())->connect();
-$crud = new Crud($db);
-$message = "";
+if($_SERVER['REQUEST_METHOD'] == 'POST'){
+    $username = trim($_POST['username']);
+    $email = trim($_POST['email']);
+    $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $message = $crud->createUser($_POST['name'], $_POST['email'], $_POST['password'], $_POST['confirm']);
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE username = ? OR email = ?");
+    $stmt->execute([$username, $email]);
+    if($stmt->rowCount() > 0){
+        $message = "Username or email already exists!";
+    } else {
+        $stmt = $pdo->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+        if($stmt->execute([$username, $email, $password])){
+            $message = "Registration successful! <a href='/login.php'>Login here</a>";
+        } else {
+            $message = "Something went wrong.";
+        }
+    }
 }
 ?>
-
-<div class="container">
-  <h2 class="mb-4">Register Admin</h2>
-  <?php if ($message): ?><div class="alert alert-info"><?php echo $message; ?></div><?php endif; ?>
-
-  <form method="POST" class="col-md-6 mx-auto">
-    <input type="text" name="name" placeholder="Name" class="form-control mb-2" required>
-    <input type="email" name="email" placeholder="Email" class="form-control mb-2" required>
-    <input type="password" name="password" placeholder="Password" class="form-control mb-2" required>
-    <input type="password" name="confirm" placeholder="Confirm Password" class="form-control mb-3" required>
-    <button class="btn btn-primary w-100">Register</button>
-  </form>
-</div>
-
+<?php include 'includes/header.php'; ?>
+<section>
+    <h1>Register</h1>
+    <?php if($message) echo "<p>$message</p>"; ?>
+    <form action="" method="POST">
+        <label>Username</label>
+        <input type="text" name="username" required>
+        <label>Email</label>
+        <input type="email" name="email" required>
+        <label>Password</label>
+        <input type="password" name="password" required>
+        <button type="submit">Register</button>
+    </form>
+</section>
 <?php include 'includes/footer.php'; ?>
