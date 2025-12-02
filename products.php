@@ -1,30 +1,25 @@
 <?php
-include 'includes/db.php';
-include 'includes/crud.php';
-include 'includes/header.php';
+include "includes/header.php";
+include_once "includes/Inventory.php";
 
-$db = (new Database())->connect();
-$crud = new Crud($db);
-$products = $crud->getAllProducts();
+$inventory = new Inventory(require "includes/config.php");
+$products = $inventory->getAllProducts();
 ?>
 
-<div class="container">
-  <h2 class="mb-4 text-center">All Products</h2>
-  <div class="row">
-    <?php foreach ($products as $p): ?>
-      <div class="col-md-4 mb-4">
-        <div class="card h-100">
-          <img src="images/<?php echo htmlspecialchars($p['image']); ?>" class="card-img-top" alt="Product">
-          <div class="card-body">
-            <h5><?php echo htmlspecialchars(string: $p['name']); ?></h5>
-            <p><?php echo htmlspecialchars(string: $p['description']); ?></p>
-            <p><strong>In Stock:</strong> <?php echo $p['quantity']; ?></p>
-            <a href="single_product.php?id=<?php echo $p['id']; ?>" class="btn btn-primary btn-sm">View</a>
-          </div>
-        </div>
-      </div>
-    <?php endforeach; ?>
-  </div>
+<link rel="stylesheet" href="css/styles.css">
+
+
+<div class="text">
+    <h1>All Products</h1>
+    <div class="products">
+        <?php foreach($products as $p): ?>
+            <div class="product">
+                <h3><?php echo htmlspecialchars($p['name']); ?></h3>
+                <p>Quantity: <?php echo $p['quantity']; ?></p>
+                <a href="product.php?id=<?php echo $p['id']; ?>" class="btn btn-primary">View</a>
+            </div>
+        <?php endforeach; ?>
+    </div>
 </div>
 
-<?php include 'includes/footer.php'; ?>
+<?php include "includes/footer.php"; ?>

@@ -1,23 +1,20 @@
 <?php
-require_once   '/includes/config.php';
-require_once   '/includes/Database.php';
-require_once  '/includes/Inventory.php';
-require_once 'styles.css';
-$config = require  '/includes/config.php';
-$inventory = new Inventory($config);
-include  '/includes/header.php';
-?>
-<section class="py-4">
-  <div class="row align-items-center">
-    <div class="col-md-7">
-      <h2>Welcome to Kyles Final PHP Project Inventory Management System for Kylewercoiergaming merch</h2>
-      <p>View products, create an account, or sign in to manage inventory.</p>
-      <a href="/products.php" class="btn btn-primary">Browse Products</a>
-    </div>
-    <div class="col-md-5">
-      <img src="/hero.png" class="img-fluid" alt="Inventory illustration">
-    </div>
-  </div>
-</section>
+// Include header and necessary files
+include "includes/header.php";
+include_once "includes/Inventory.php";
 
-<?php include  '/includes/footer.php'; ?>
+// Load config and initialize inventory
+$config = require "includes/config.php";
+$inventory = new Inventory($config);
+?>
+
+<!-- Link CSS -->
+<link rel="stylesheet" href="styles.css">
+
+<div class="text">
+  <h1>Welcome to Kyle's Final PHP Project Inventory Management System</h1>
+  <p>View products, create an account, or sign in to manage inventory.</p>
+  <a href="products.php" class="btn btn-lg btn-primary">Browse Products</a>
+</div>
+
+<?php include "includes/footer.php"; ?>

@@ -1,23 +1,33 @@
 <?php
-session_start();
+// Start session for login tracking
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
-<header class="p-3 bg-dark text-white">
-  <div class="container d-flex justify-content-between align-items-center">
-    <h2><a href="index.php" class="text-white text-decoration-none">Kyle Final Project Inventory System</a></h2>
-    <nav>
-      <a href="index.php" class="text-white me-3">Home</a>
-      <a href="products.php" class="text-white me-3">Products</a>
-      <a href="register.php" class="text-white me-3">Register</a>
-      <?php if (!isset($_SESSION['user'])): ?>
-        <form class="d-inline" method="POST" action="login.php">
-          <input type="email" name="email" placeholder="Email" required>
-          <input type="password" name="password" placeholder="Password" required>
-          <button class="btn btn-sm btn-light">Login</button>
-        </form>
-      <?php else: ?>
-        <span class="me-3">Hi, <?php echo $_SESSION['user']['name']; ?></span>
-        <a href="logout.php" class="btn btn-sm btn-danger">Logout</a>
-      <?php endif; ?>
-    </nav>
-  </div>
-</header>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kyle's Inventory Management</title>
+    <!-- CSS is linked in the page itself like your pizza project -->
+</head>
+<body>
+    <header>
+        <h1>Kyle Inventory Management</h1>
+        <!-- Optional: simple nav -->
+        <nav>
+            <a href="index.php">Home</a> |
+            <a href="products.php">Products</a>
+            <?php
+            if (!isset($_SESSION['user_id'])) {
+                echo ' | <a href="register.php">Register</a>';
+                echo ' | <a href="login.php">Login</a>';
+            } else {
+                echo ' | Welcome, ' . htmlspecialchars($_SESSION['username']);
+                echo ' | <a href="logout.php">Logout</a>';
+            }
+            ?>
+        </nav>
+        <hr>
+    </header>
