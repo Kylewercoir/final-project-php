@@ -5,30 +5,36 @@ require 'db.php';
 $pdo = Database::getInstance()->getConnection();
 $message = '';
 
-if($_SERVER['REQUEST_METHOD'] === 'POST'){
-    $username = trim(string: $_POST['username']);
-    $password = trim(string: $_POST['password']);
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    if(empty($username) || empty($password)){
+    $username = trim($_POST['username']);
+    $password = trim($_POST['password']);
+
+    if (empty($username) || empty($password)) {
         $message = "All fields are required!";
     } else {
+
+        //  prepare + execute
         $stmt = $pdo->prepare(query: "SELECT * FROM users WHERE username=? OR email=?");
         $stmt->execute(params: [$username, $username]);
+
         $user = $stmt->fetch();
 
-        if($user && password_verify(password: $password, $user['password'])){
-            // Setting session variables
+        if ($user && password_verify($password, $user['password'])) {
+
+            // Set sessions
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
-            $_SESSION['role'] = $user['role']; // important!
+            $_SESSION['role'] = $user['role'];
 
-            // Redirect based on role
-            if($user['role'] === 'admin'){
-                header(header: "Location: includes/admin_dashboard.php");
+            //  header syntax
+            if ($user['role'] === 'admin') {
+                header("Location: includes/admin_dashboard.php");
             } else {
-                header(header: "Location: index.php");
+                header("Location: index.php");
             }
             exit;
+
         } else {
             $message = "Invalid username/email or password!";
         }
@@ -40,7 +46,11 @@ include 'includes/header.php';
 
 <section class="container">
     <h1>Login</h1>
-    <?php if($message) echo "<p class='error'>$message</p>"; ?>
+
+    <?php if ($message): ?>
+        <p class="error"><?= htmlspecialchars($message) ?></p>
+    <?php endif; ?>
+
     <form method="POST" class="form">
         <label>Username or Email</label>
         <input type="text" name="username" required>
