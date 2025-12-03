@@ -6,18 +6,18 @@ $pdo = Database::getInstance()->getConnection();
 $message = '';
 
 if($_SERVER['REQUEST_METHOD'] === 'POST'){
-    $username = trim($_POST['username']);
-    $password = trim($_POST['password']);
+    $username = trim(string: $_POST['username']);
+    $password = trim(string: $_POST['password']);
 
     if(empty($username) || empty($password)){
         $message = "All fields are required!";
     } else {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE username=? OR email=?");
-        $stmt->execute([$username, $username]);
+        $stmt = $pdo->prepare(query: "SELECT * FROM users WHERE username=? OR email=?");
+        $stmt->execute(params: [$username, $username]);
         $user = $stmt->fetch();
 
-        if($user && password_verify($password, $user['password'])){
-            // Set session variables
+        if($user && password_verify(password: $password, $user['password'])){
+            // Setting session variables
             $_SESSION['user_id'] = $user['id'];
             $_SESSION['username'] = $user['username'];
             $_SESSION['role'] = $user['role']; // important!
