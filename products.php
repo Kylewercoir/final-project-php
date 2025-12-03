@@ -1,37 +1,52 @@
 <?php
-require 'db.php';
 session_start();
+
+require 'db.php';
+$pdo = Database::getInstance()->getConnection();
+
 include 'includes/header.php';
 
-$pdo = Database::getInstance()->getConnection();
-$stmt = $pdo->query("SELECT * FROM products ORDER BY id DESC");
-$products = $stmt->fetchAll();
+// Show errors temporarily for debugging
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 ?>
 
-<div class="container">
-    <h1>All Products</h1>
+<h1>All Products</h1>
 
-    <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-        <a class="btn" href="includes/add_product.php">Add Product</a>
-    <?php endif; ?>
+<div class="products-grid">
 
-    <div class="products-grid">
-        <?php foreach($products as $product): ?>
-            <div class="product-card">
-                <h2><?= htmlspecialchars($product['name']) ?></h2>
-                <?php if($product['image'] && file_exists('uploads/'.$product['image'])): ?>
-                    <img src="uploads/<?= $product['image'] ?>" alt="<?= htmlspecialchars($product['name']) ?>" class="product-img">
-                <?php endif; ?>
-                <p>Quantity: <?= $product['quantity'] ?></p>
-                <p>Price: $<?= $product['price'] ?></p>
+<?php
+$stmt = $pdo->query("SELECT * FROM products ORDER BY id DESC");
 
-                <?php if(isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                    <a class="btn" href="includes/edit_product.php?id=<?= $product['id'] ?>">Edit</a>
-                    <a class="btn muted" href="includes/manage_products.php?delete=<?= $product['id'] ?>" onclick="return confirm('Delete this product?')">Delete</a>
-                <?php endif; ?>
-            </div>
-        <?php endforeach; ?>
+while ($product = $stmt->fetch()):
+    
+    // Default image
+    $imagePath = 'uploads/kylewercoir-hat.png';
+
+    // Use product image if exists
+    if (!empty($product['image']) && file_exists('uploads/' . $product['image'])) {
+        $imagePath = 'uplaods/kylewercoir-t-shirt.png' . $product['image'];
+    }
+
+?>
+    <div class="product-card">
+        <h2><?= htmlspecialchars($product['name']) ?></h2>
+
+        <img src="<?= htmlspecialchars($imagePath) ?>" 
+             alt="<?= htmlspecialchars($product['name']) ?>" 
+             style="width:150px;">
+
+        <p>Quantity: <?= $product['quantity'] ?></p>
+        <p>Price: $<?= $product['price'] ?></p>
+
+        <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
+            <p><a href="includes/edit_product.php?id=<?= $product['id'] ?>">Edit</a></p>
+            <p><a href="includes/delete_product.php?id=<?= $product['id'] ?>">Delete</a></p>
+        <?php endif; ?>
+
     </div>
+<?php endwhile; ?>
+
 </div>
 
 <?php include 'includes/footer.php'; ?>
