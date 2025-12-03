@@ -1,48 +1,36 @@
 <?php
 session_start();
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: login.php");
+require '../db.php';
+
+// Only admin can access
+if(!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin'){
+    header('Location: ../index.php');
     exit;
 }
 
-require_once __DIR__ . '/../db.php';
-$pdo = Database::getInstance()->getConnection();
-
-include __DIR__ . '/header.php';
-
-// quick stats
-$stmt = $pdo->query("SELECT COUNT(*) AS cnt FROM products");
-$productsCount = $stmt->fetchColumn();
-
-$stmt = $pdo->query("SELECT COUNT(*) AS cnt FROM users");
-$usersCount = $stmt->fetchColumn();
-
-$stmt = $pdo->query("SELECT SUM(quantity) AS total_stock FROM products");
-$totalStock = $stmt->fetchColumn();
+include 'header.php';
 ?>
-<main class="container">
+
+<div class="container dashboard">
     <h1>Admin Dashboard</h1>
+    <p>Welcome, <strong><?= htmlspecialchars($_SESSION['username']) ?></strong>! Use the links below to manage your inventory and users.</p>
 
-    <div class="stats-grid">
-        <div class="stat">
-            <h2><?= intval($productsCount) ?></h2>
-            <p>Products</p>
+    <div class="dashboard-cards">
+
+        <div class="card">
+            <h2>Products</h2>
+            <p>View, add, edit, or delete products</p>
+            <a class="btn" href="manage_products.php">Manage Products</a>
         </div>
-        <div class="stat">
-            <h2><?= intval($usersCount) ?></h2>
-            <p>Users</p>
+
+        <div class="card">
+            <h2>Users</h2>
+            <p>View, add, edit, or delete users</p>
+            <a class="btn" href="manage_users.php">Manage Users</a>
         </div>
-        <div class="stat">
-            <h2><?= intval($totalStock) ?></h2>
-            <p>Total Stock</p>
-        </div>
+
     </div>
 
-    <div class="admin-actions">
-        <a class="btn" href="/manage_products.php">Manage Products</a>
-        <a class="btn" href="/add_product.php">Add Product</a>
-        <a class="btn" href="/users.php">Manage Users</a>
-    </div>
-</main>
+</div>
 
-<?php include __DIR__ . '/footer.php'; ?>
+<?php include 'footer.php'; ?>
